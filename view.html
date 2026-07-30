@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>جوابش 💌</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+    <div id="content" class="page active">
+      <h1>در حال بارگذاری...</h1>
+      <p class="hint">لطفاً کمی صبر کن 💜</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://ekmgvnadzpbicleexpjb.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrbWd2bmFkenBiaWNsZWV4cGpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNTc3MDksImV4cCI6MjEwMDgzMzcwOX0.9UXnwcxSua7YYql2VAbHGfNNCsepT67fejDiHtl2CHw';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ===== قلب‌های شناور =====
+    function createHearts() {
+      const heartCount = 14;
+      for (let i = 0; i < heartCount; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.innerHTML = '💜';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (6 + Math.random() * 7) + 's';
+        heart.style.animationDelay = Math.random() * 4 + 's';
+        heart.style.fontSize = (16 + Math.random() * 16) + 'px';
+        document.body.appendChild(heart);
+      }
+    }
+
+    // ===== فرمت تاریخ شمسی =====
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('fa-IR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    // ===== بارگذاری اطلاعات =====
+    async function load() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      if (!id) {
+        document.getElementById('content').innerHTML = 
+          <h1>لینک نامعتبره 😕</h1>
+          <p class="hint">این لینک کامل نیست.</p>
+        ;
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('link_id', id)
+          .single();
+
+        if (error || !data) {
+          document.getElementById('content').innerHTML = 
+            <h1>پیدا نشد 😢</h1>
+            <p class="hint">این لینک یا منقضی شده یا وجود نداره.</p>
+          ;
+          return;
+        }
+
+        // نمایش اطلاعات
+        document.getElementById('content').innerHTML = 
+          <h1>یه نفر جواب داده! 🎉</h1>
+          
+          <div class="summary-box">
+            <p>💜 اسم: <strong>${data.name}</strong></p>
+            <p>🍽️ میخواد بره: <strong>${data.food}</strong></p>
+            <p>📅 تاریخ: <strong>${formatDate(data.date)}</strong></p>
+            <p>⏰ ساعت: <strong>${data.time}</strong></p>
+          </div>
+
+          <p class="hint">حالا فقط کافیه آماده بشی! 💫</p>
+        ;
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('content').innerHTML = 
+          <h1>خطا در بارگذاری 😕</h1>
+          <p class="hint">یه مشکلی پیش اومد. دوباره امتحان کن.</p>
+        ;
+      }
+    }
+
+    // ===== شروع =====
+    document.addEventListener('DOMContentLoaded', () => {
+      createHearts();
+      load();
+    });
+  </script>
+</body>
+</html>
